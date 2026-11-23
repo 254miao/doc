@@ -182,5 +182,165 @@
 <p style="text-align:center;color:#9aa4b2;font-size:12.5px;margin-top:34px">Đội phát triển Lulu Đại Vương</p>
 
 
+
+<!-- ===== 后台编辑（保存时会自动剔除本段）===== -->
+<style data-admin="1">
+  #admFab{position:fixed;top:12px;right:12px;z-index:99998;display:flex;gap:6px}
+  #admFab button{border:0;border-radius:20px;padding:8px 14px;font-size:14px;
+    background:rgba(47,107,216,.92);color:#fff;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+  #admFab button.gray{background:rgba(90,98,110,.9)}
+  #admMask{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.45);
+    display:none;align-items:center;justify-content:center;padding:24px}
+  #admBox{background:#fff;border-radius:14px;padding:20px;width:100%;max-width:320px;
+    box-shadow:0 10px 40px rgba(0,0,0,.3);font-size:15px}
+  #admBox h4{margin:0 0 12px;font-size:17px}
+  #admBox input{width:100%;box-sizing:border-box;margin:6px 0;padding:11px 12px;
+    border:1px solid #d8e2f0;border-radius:8px;font-size:15px}
+  #admBox .row{display:flex;gap:8px;margin-top:12px}
+  #admBox button{flex:1;border:0;border-radius:8px;padding:11px;font-size:15px;font-weight:600}
+  #admBox .pri{background:#2f6bd8;color:#fff}
+  #admBox .sec{background:#eef2f8;color:#3a4452}
+  #admMsg{margin-top:10px;font-size:13.5px;color:#c0392b;min-height:18px;line-height:1.6}
+  #admBar{position:fixed;left:0;right:0;bottom:0;z-index:99998;display:none;
+    padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    background:rgba(24,28,35,.94);color:#fff;font-size:13.5px;
+    align-items:center;gap:8px}
+  #admBar .t{flex:1;line-height:1.5}
+  #admBar button{border:0;border-radius:8px;padding:9px 14px;font-size:14px;font-weight:600}
+  #admBar .ok{background:#2e9e5b;color:#fff}
+  #admBar .no{background:#49525f;color:#fff}
+  body.admEdit{padding-bottom:86px}
+  body.admEdit [contenteditable] a{pointer-events:none}
+  body.admEdit [contenteditable]:hover{outline:1px dashed rgba(47,107,216,.5)}
+</style>
+<div data-admin="1" id="admFab">
+  <button id="admOpen">⚙ 后台</button>
+</div>
+<div data-admin="1" id="admMask">
+  <div id="admBox">
+    <h4>后台登录</h4>
+    <input id="admU" placeholder="账号" autocomplete="username">
+    <input id="admP" type="password" placeholder="密码" autocomplete="current-password">
+    <div class="row">
+      <button class="sec" id="admCancel">取消</button>
+      <button class="pri" id="admGo">登录</button>
+    </div>
+    <div id="admMsg"></div>
+  </div>
+</div>
+<div data-admin="1" id="admBar">
+  <span class="t" id="admTip">编辑模式：点文字直接改</span>
+  <button class="no" id="admQuit">退出</button>
+  <button class="ok" id="admSave">保存</button>
+</div>
+<script data-admin="1">
+(function(){
+  var API = 'http://47.109.150.110:8080/docedit';
+  var U = '', P = '', editing = false;
+
+  function $(id){ return document.getElementById(id); }
+  function msg(t, ok){
+    var m = $('admMsg');
+    m.style.color = ok ? '#2e9e5b' : '#c0392b';
+    m.textContent = t || '';
+  }
+  function tip(t){ $('admTip').textContent = t; }
+
+  $('admOpen').onclick = function(){
+    if (editing) return;
+    $('admMask').style.display = 'flex';
+    msg(''); $('admU').focus();
+  };
+  $('admCancel').onclick = function(){ $('admMask').style.display = 'none'; };
+
+  function login(){
+    var u = $('admU').value.trim(), p = $('admP').value;
+    if (!u || !p) { msg('请填写账号和密码'); return; }
+    msg('验证中…', true);
+    fetch(API + '/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user: u, pass: p})
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if (!j.ok) { msg(j.msg || '登录失败'); return; }
+      U = u; P = p;
+      $('admMask').style.display = 'none';
+      enterEdit();
+    }).catch(function(e){ msg('连不上服务器：' + e.message); });
+  }
+  $('admGo').onclick = login;
+  $('admP').addEventListener('keydown', function(e){ if (e.key === 'Enter') login(); });
+
+  function editableNodes(){
+    var out = [], walk = function(n){
+      for (var c = n.firstElementChild; c; c = c.nextElementSibling){
+        if (c.hasAttribute('data-admin')) continue;
+        var tag = c.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE') continue;
+        if (/^(H1|H2|H3|H4|P|LI|SPAN|B|A|STRONG|EM|DIV)$/.test(tag)
+            && c.children.length === 0) out.push(c);
+        else walk(c);
+      }
+    };
+    walk(document.body);
+    return out;
+  }
+
+  function enterEdit(){
+    editing = true;
+    document.body.classList.add('admEdit');
+    editableNodes().forEach(function(n){ n.setAttribute('contenteditable', 'true'); });
+    $('admBar').style.display = 'flex';
+    $('admFab').style.display = 'none';
+    tip('编辑模式：点文字直接改');
+  }
+
+  function exitEdit(){
+    editing = false;
+    document.body.classList.remove('admEdit');
+    document.querySelectorAll('[contenteditable]').forEach(function(n){
+      n.removeAttribute('contenteditable');
+    });
+    $('admBar').style.display = 'none';
+    $('admFab').style.display = 'flex';
+    U = ''; P = '';
+  }
+  $('admQuit').onclick = function(){
+    if (confirm('退出编辑？未保存的修改会丢失')) exitEdit();
+  };
+
+  function buildHtml(){
+    var doc = document.documentElement.cloneNode(true);
+    doc.querySelectorAll('[data-admin]').forEach(function(e){ e.remove(); });
+    doc.querySelectorAll('[contenteditable]').forEach(function(e){
+      e.removeAttribute('contenteditable');
+    });
+    doc.querySelectorAll('body').forEach(function(e){ e.className = ''; });
+    return '<!DOCTYPE html>\n' + doc.outerHTML + '\n';
+  }
+
+  $('admSave').onclick = function(){
+    if (!U || !P) { alert('请重新登录'); return; }
+    tip('保存中…');
+    fetch(API + '/save', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({user: U, pass: P, html: buildHtml()})
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if (j.ok) {
+        tip('已保存（' + (j.commit || '') + '），约 1 分钟后生效');
+        setTimeout(function(){ location.reload(); }, 4000);
+      } else {
+        tip('保存失败：' + (j.msg || ''));
+        alert('保存失败：' + (j.msg || ''));
+      }
+    }).catch(function(e){
+      tip('保存失败：' + e.message);
+      alert('连不上服务器：' + e.message);
+    });
+  };
+})();
+</script>
+
 </body>
 </html>
