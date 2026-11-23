@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
+<html lang="zh-CN"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
@@ -83,7 +82,7 @@
   .notice .imp{margin-top:10px;color:#c0392b;font-size:15px;line-height:1.85}
 </style>
 </head>
-<body>
+<body class="">
 
 <h1>噜噜大王1.0 kogpro</h1>
 <hr>
@@ -147,8 +146,8 @@
 </ol>
 
 <h3>点击下载👇</h3>
-<p><a class="dlbtn" href="http://47.109.150.110:8080/dl/KogPro_v6.ipa">kogpro（点击下载）</a></p>
-<p><a class="dlbtn" href="http://47.109.150.110:8080/dl/lulu10_v2.ipa">噜噜大王v2（点击下载）</a></p>
+<p><a class="dlbtn" href="http://47.109.150.110:8080/dl/KogPro_v6.ipa">kogpro优化版（点击下载）</a></p>
+<p><a class="dlbtn" href="http://47.109.150.110:8080/dl/lulu10_v2.ipa">噜噜大王1.0（点击下载）</a></p>
 <p><span class="pill"><span class="red">使用前请优先阅读理解</span> 使用说明</span></p>
 
 <h3>更新日志</h3>
@@ -165,7 +164,7 @@
     <li>优化网络通讯链路，减少验证延迟</li>
   </ol>
   <div class="imp">
-    <b>重要提醒：</b><br>
+    <b><br></b><br>
     • 请务必安装最新版本，旧版本已停止支持，继续使用可能影响账号安全<br>
     <b>关于近期情况：</b>近期部分用户反馈账号异常，已完成排查并做了针对性处理。目前新版本测试稳定，请放心使用
   </div>
@@ -210,15 +209,15 @@
   body.admEdit [contenteditable]:hover{outline:1px dashed rgba(47,107,216,.5)}
   #admTokWrap{display:none}
 </style>
-<div data-admin="1" id="admFab"><button id="admOpen">⚙ 后台</button></div>
-<div data-admin="1" id="admMask">
+<div data-admin="1" id="admFab" style=""><button id="admOpen">⚙ 后台</button></div>
+<div data-admin="1" id="admMask" style="">
   <div id="admBox">
     <h4 id="admTitle">后台登录</h4>
-    <div id="admLoginWrap">
+    <div id="admLoginWrap" style="display: block;">
       <input id="admU" placeholder="账号" autocomplete="username">
       <input id="admP" type="password" placeholder="密码" autocomplete="current-password">
     </div>
-    <div id="admTokWrap">
+    <div id="admTokWrap" style="display: none;">
       <div style="font-size:13.5px;color:#57606a;line-height:1.7;margin-bottom:6px">
         首次使用请粘贴一次 GitHub token（只存在这台手机的浏览器里，不会上传）
       </div>
@@ -228,10 +227,10 @@
       <button class="sec" id="admCancel">取消</button>
       <button class="pri" id="admGo">登录</button>
     </div>
-    <div id="admMsg"></div>
+    <div id="admMsg" style="color: rgb(192, 57, 43);"></div>
   </div>
 </div>
-<div data-admin="1" id="admBar">
+<div data-admin="1" id="admBar" style="">
   <span class="t" id="admTip">编辑模式：点文字直接改</span>
   <button class="no" id="admQuit">退出</button>
   <button class="ok" id="admSave">保存</button>
@@ -359,3 +358,4 @@
   };
 })();
 </script>
+</body></html>
