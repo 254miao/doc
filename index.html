@@ -181,8 +181,6 @@
 
 <p style="text-align:center;color:#9aa4b2;font-size:12.5px;margin-top:34px">Đội phát triển Lulu Đại Vương</p>
 
-
-
 <!-- ===== 后台编辑（保存时会自动剔除本段）===== -->
 <style data-admin="1">
   #admFab{position:fixed;top:12px;right:12px;z-index:99998;display:flex;gap:6px}
@@ -311,11 +309,20 @@
 
   function buildHtml(){
     var doc = document.documentElement.cloneNode(true);
-    doc.querySelectorAll('[data-admin]').forEach(function(e){ e.remove(); });
+    // 只去掉编辑属性，后台按钮/面板必须原样保留（否则保存一次就再也进不来）
     doc.querySelectorAll('[contenteditable]').forEach(function(e){
       e.removeAttribute('contenteditable');
     });
     doc.querySelectorAll('body').forEach(function(e){ e.className = ''; });
+    // 清掉运行时加的 inline display，避免把「隐藏」写进文件
+    ['admFab','admMask','admBar'].forEach(function(id){
+      var el = doc.querySelector('#' + id);
+      if (el) el.style.display = '';
+    });
+    var m = doc.querySelector('#admMsg');
+    if (m) m.textContent = '';
+    var t = doc.querySelector('#admTip');
+    if (t) t.textContent = '编辑模式：点文字直接改';
     return '<!DOCTYPE html>\n' + doc.outerHTML + '\n';
   }
 
@@ -341,6 +348,3 @@
   };
 })();
 </script>
-
-</body>
-</html>
